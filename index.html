@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+<div id=form1 align = "right">
+<form name="form1" id="form1" method="post" onsubmit="return validateadmin()" action="">
+<fieldset>
+<legend align="right"><h3> USER LOGIN </h3> </legend><br>
+
+Username:
+<input type = "text" name="username" id="adminusername" required><br>
+<br>
+
+Password:
+<input type = "password" name="password" id="adminpassword" required><br>
+<br>
+<input type="submit" value="submit" name="submit">
+</fieldset>
+</form>
+
+</div>
+
+
+<div id=form2 align = "center">
+<form>
+<fieldset>
+<legend align="center"><h3> BOOK GUIDE</h3> </legend><br>
+
+Class ID:
+<input type = "text" name="course_name" id="course_name"><br>
+<br>
+
+ISBN: 
+<input type = "text" name="ID" id="course_book"><br>
+<br>
+<input type="button"  id="1" value="Submit" onclick="validate();"></input>
+</fieldset>
+</form>
+</div>
+<div id="demo" align="center"></div>
+<div id=form3 align = "left">
+<form>
+<fieldset>
+<legend align="left"><h3> BOOK GUIDE: Set Your Semester</h3> </legend><br>
+<div id="gen" align="center"></div>
+Class One:
+<input type = "text" name="course1" id="course1"><br>
+<br>
+Class Two:
+<input type = "text" name="course2" id="course2"><br>
+<br>
+Class Three:
+<input type = "text" name="course3" id="course3"><br>
+<br>
+Class Four:
+<input type = "text" name="course4" id="course4"><br>
+<br>
+<input type="button"  value="Generate" onclick="generatelist();"></input>
+</fieldset>
+</form>
+</div>
+
+<script>
+
+
+    function validateadmin()
+    {
+        var username = document.forms["form1"]["username"].value; // checks for the form with attribute username for its value and sets it;
+        var password = document.forms["form1"]["password"].value; // same as username but with password;
+        
+        if (username != null && password !=null)
+            {
+               document.form1.action = "loginprocess.php";
+               
+            }
+        else
+            {
+                //document.form1.action = "loginprocess.php";
+                alert("Please enter username and password");
+            }
+    }
+    //document.getElementById("1").addEventListener("click", checkforisbn, false);
+    function checkforisbn()
+    {
+        window.alert("asdasd");
+    }
+    function validate()
+    {   
+        var course_book = document.getElementById("course_book").value;
+        var course_name = document.getElementById("course_name").value;
+        xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if(this.readyState == 4 && this.status == 200)
+            {
+                document.getElementById("demo").innerHTML = this.responseText;
+                
+            }
+            
+        };
+        xhttp.open("GET", "process.php?course_name=" + course_name + "&course_book=" + course_book, true);
+        xhttp.send();
+       
+        
+    }
+        
+    function validateuser()
+    {   
+        var username = document.getElementById("username").value;
+        var password = document.getElementById("password").value;
+        
+        xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if(this.readyState == 4 && this.status == 200)
+            {
+                document.getElementById("demo2").innerHTML = this.responseText;
+                
+            }
+            
+        };
+        xhttp.open("POST", "loginprocess.php", true);
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhttp.send("username=" + username + "&password=" + password);
+       
+        
+    }
+        
+    function generatelist()
+    {   
+        var course_one = document.getElementById("course1").value;
+        var course_two = document.getElementById("course2").value;
+        var course_three = document.getElementById("course3").value;
+        var course_four = document.getElementById("course4").value;
+        xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if(this.readyState == 4 && this.status == 200)
+            {
+                document.getElementById("gen").innerHTML = this.responseText;
+                
+            }
+            
+        };
+        xhttp.open("GET", "generatecourse.php?course1=" + course_one + "&course2=" + course_two + "&course3=" + course_three + "&course4=" + course_four, true);
+        xhttp.send();
+       
+        
+    }
+</script>
+</body>
+</html>

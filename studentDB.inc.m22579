@@ -1,0 +1,301 @@
+<?php
+
+class StudentAccess
+{
+    protected $db;
+// constructs a database connection with a $database variable database
+    function __construct($database)
+    {
+            $this->db = new mysqli("localhost","root","kamran",$database);
+            if ($this->db->connect_errno != 0)
+            {
+                    echo "error connecting to databse: ".$this->db->connect_error.PHP_EOL;
+                    exit();
+            }
+    }
+
+    public function __destruct()
+    {
+            if (isset($this->db))
+            {
+                    $this->db->close();
+            }
+    }
+    // tries to clean the input, not sure if really works or no
+    public function cleaninput($input)
+    {
+            $output = mysqli_real_escape_string($this->db, $input);
+            return $output;
+    }
+    /*echos out a table of 'courseinfo' 
+
+    might not work with other tables due to hard coded row values
+
+    */ 
+
+    public function gettable($table)
+    {
+            $query = "select * from $table;";
+
+            $queryResponse = $this->db->query($query);
+            $response = array();
+            echo "<table><tr><th>CourseID</th><th>Course Name</th><th>Course Semester</th><th>Course Professor</th></tr>";
+            while($row = $queryResponse->fetch_assoc())
+            {
+                    $response[] = $row;
+                    echo "<tr><td>" . $row["courseID"]. PHP_EOL . "</td><td>"
+                                    . $row["course_name"] . PHP_EOL . "</td><td>"
+                                    . $row["course_semester"] . PHP_EOL . "</td><td>"
+                                    . $row["course_professor"] . PHP_EOL . "</td></tr>";
+            }
+            echo "</table><br><br>";
+            return $response;
+    }
+    
+    public function getAdmin($uname, $password, $table)
+    {
+            $query = "select username, password from $table where username = '$uname' and password = '$password';";
+            $queryResponse = $this->db->query($query);
+            $response = array();
+            if(mysqli_num_rows($queryResponse) > 0)
+            {
+                    while($row = $queryResponse->fetch_assoc())
+                    {
+                            $response[] = $row;
+                    }
+                    return $response;
+            }
+            else
+            {
+                    return 0;
+                    //echo "wrong username and password";
+                    //return('0');
+            }
+    }
+    public function selectcourse($courseID, $courseName, $courseSem, $courseProf, $table)
+    {
+            //echo "in func vars " . $table;
+            $selectQuery = "select * From $table
+                            Where courseID = '$courseID' or
+                            course_name = '$courseName' or
+                            course_semester = '$courseSem' or
+                            course_professor = '$courseProf';";
+            $qResponse = $this->db->query($selectQuery);
+            $response = array();
+            if(mysqli_num_rows($qResponse) > 0)
+            {
+                    //echo "query was good";
+                    while($row = $qResponse->fetch_assoc())
+                    {
+                            /*
+                            echo " course ID " . $row["courseID"] . 
+                                " Course Name " . $row["course_name"] . 
+                                " Course Semester " . $row["course_semester"] . 
+                                " Course Professor " . $row["course_professor"] . "<br>";	
+                            */
+                            $response[] = $row;	
+                    }
+                    return $response;
+            } else { echo "no results";}
+            
+    }
+    public function addcourse($courseID, $courseName, $courseSem, $courseProf, $table)
+    {
+            //echo "in func vars " . $table.;
+            $insertQuery = "insert into $table (courseID, course_name, course_semester, course_professor) 
+                            Values ('$courseID', '$courseName', '$courseSem', '$courseProf');";
+            if ($this->db->query($insertQuery) === TRUE)
+            {
+                    //echo $this->gettable($table);
+                    //echo "record entered properly";
+                    return true;
+            }
+            elseif($this->db->query($insertQuery) === FALSE)
+            {
+                    return false;
+                    //return( "record was not entered properly");
+            }
+            
+    }
+// deletes a row --hopefully
+    public function deletecourse($courseID, $courseName, $courseSem, $courseProf, $table)
+    {
+            //echo "in func vars " . $table.;
+            $deleteQuery = "delete From $table
+                            Where courseID = '$courseID' and
+                            course_name = '$courseName';";
+            if ($this->db->query($deleteQuery) === TRUE)
+            {
+                    //echo "record deleted";
+                    return true;
+            }
+            elseif($this->db->query($insertQuery) === FALSE)
+            {
+                    return false;
+                    //echo " record was not deleted properly";
+            }
+            
+    }
+    
+    public function scourse($courseID, $isbn)
+    {
+            
+            //echo "in func vars " . $table;
+            $selectQuery = "select courseinfo.courseID,
+                            courseinfo.course_name,
+                            class_table.textbook,
+                            class_table.required,
+                            class_table.isbn
+                            From courseinfo
+                            join class_table on class_table.courseID=courseinfo.courseID
+                            where courseinfo.courseID like '$courseID%' and class_table.isbn like '%$isbn%';";
+            $qResponse = $this->db->query($selectQuery);
+            $response = array();
+            
+            if(mysqli_num_rows($qResponse) > 0)
+            {
+                    echo "<table width=\"50%\"><tr><th>CourseID</th><th>Textbook</th><th>Required</th><th>ISBN</th></tr>"; 
+                    //echo "query was good";
+                    while($row = $qResponse->fetch_assoc())
+                    {
+                            $response[] = $row;
+                            echo "<tr><td>" . $row["courseID"] . PHP_EOL . "</td><td>"
+                                            . $row["textbook"]     . PHP_EOL . "</td><td>"
+                                            . $row["required"]     . PHP_EOL . "</td><td>"
+                                            . $row["isbn"] . PHP_EOL . "</td></tr>";
+                    }
+                    echo "</table><br><br>";
+                    return $response;
+            } else { echo "no results";}
+            
+    }
+    //gets the administer account since its the only account returns "1" if the admin is true.
+    public function getuser($username, $password)
+    {
+            //echo "in func vars " . $table.;
+            $getuserQuery = "Select * From users
+                            Where username = '$username' and
+                            password = '$password';";
+            $Qresponse = $this->db->query($getuserQuery);
+            if (mysqli_num_rows($Qresponse) > 0)
+            {
+                    while($row = $Qresponse->fetch_assoc())
+                    {
+                        if ($row['userid'] == '1')
+                        {
+                            return 1;
+                        }
+                        //echo $row['userid'] . PHP_EOL . $row['username'] . PHP_EOL . $row['password'] . PHP_EOL;
+                    }
+            }
+            else
+            {
+                return 0;
+            }
+            
+    }
+    public function generatecourse($courseID)
+    {
+            
+            //echo "in func vars " . $table;
+            $selectQuery = "select courseinfo.courseID,
+                            courseinfo.course_name,
+                            class_table.textbook,
+                            class_table.required
+                            From courseinfo
+                            join class_table on class_table.courseID=courseinfo.courseID
+                            where courseinfo.courseID = '$courseID';";
+            $qResponse = $this->db->query($selectQuery);
+            $response = array();
+            
+            if(mysqli_num_rows($qResponse) > 0)
+            {
+                    echo "<table width=\"50%\"><tr><th>$courseID Textbook</th></tr>"; 
+                    //echo "query was good";
+                    while($row = $qResponse->fetch_assoc())
+                    {
+                            $response[] = $row;
+                            echo "<tr><td>" . $row["textbook"] . PHP_EOL . "</td></tr>";
+                    }
+                    echo "</table><br><br>";
+                    return $response;
+            } else { echo "no results <br><br>";}
+            
+    }
+    public function getanytable($table)
+    {
+            $query = "select * from $table;";
+
+            $queryResponse = $this->db->query($query);
+            $response = array();
+            //echo "<table><tr><th>CourseID</th><th>Course Name</th><th>Course Semester</th><th>Course Professor</th></tr>";
+            while($row = $queryResponse->fetch_assoc())
+            {
+                    $response[] = $row;
+//                     echo "<tr><td>" . $row["courseID"]. PHP_EOL . "</td><td>"
+//                                     . $row["course_name"] . PHP_EOL . "</td><td>"
+//                                     . $row["course_semester"] . PHP_EOL . "</td><td>"
+//                                     . $row["course_professor"] . PHP_EOL . "</td></tr>";
+//                     var_dump($row);
+            }
+//             echo "</table><br><br>";
+            //$keys = array_keys($response[0]);
+//             $count =  count(array_keys($response[0]));
+//             echo "<table><tr>";
+//             for($i=0;$i<$count;$i++)
+//             {
+//                 //echo $keys[$i] . " ";
+//                 echo "<th>$keys[$i]</th>";
+//             }
+//             echo "</tr></table><br><br>";
+//             echo "";
+            //echo "<table><tr><th>CourseID</th><th>Course Name</th><th>Course Semester</th><th>Course Professor</th></tr>";
+            return $response;
+    }
+    public function printtable($table) //prints the table in html without hardcoding table headings
+{
+            echo "<style>
+                    table {
+                        font-family: arial, sans-serif;
+                        border-collapse: collapse;
+                        width: 100%;
+                    }
+
+                    td, th {
+                        border: 1px solid #dddddd;
+                        text-align: left;
+                        padding: 8px;
+                    }
+
+                    tr:nth-child(even) {
+                        background-color: #dddddd;
+                    }
+                </style>";
+                
+            
+            $response = $this->getanytable("$table");
+            $keys = array_keys($response[0]);
+            $count =  count(array_keys($response[0]));
+            echo "<table><tr>";
+            for($i=0;$i<$count;$i++)
+            {
+                //echo $keys[$i] . " ";
+                echo "<th> $keys[$i] </th>";
+            }
+            echo "</tr>";
+
+            foreach($response as $newresponse)
+            {
+                echo "<tr><td>";
+                echo implode('</td><td> ', $newresponse) . PHP_EOL;
+                echo "</td></tr>";
+
+            }
+            echo "</table>";
+}
+
+}
+
+
+?>
+

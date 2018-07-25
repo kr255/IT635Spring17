@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+<body>
+<fieldset>
+<div id="table">Hit 'Generate Table' to generate the table</div>
+</fieldset>
+Select a Table :<select id="table_list">
+<option value="courseinfo">Course Info</option>
+<option value="books">Books</option>
+<option value="class_table">Class</option>
+<option value="users">Users</option>
+</select>
+<!--
+<fieldset>
+<legend align="center"><h3> Add a Record </h3> </legend><br>
+<form>
+Course Number  *: <input = "text" name="courseID" id="add_courseID"><br>
+Class Name     *: <input type = "text" name="course_name" id="add_course_name"><br>
+Class Semester *: <input type = "text" name="course_semester" id="add_course_semester"><br>
+Class Professor *: <input type = "text" name="course_professor" id="add_course_professor"><br><br>
+<input type="button" value="submit" onclick="addrecord();">
+</form>
+</fieldset>
+
+<fieldset>
+<legend align="center"><h3> delete a Record </h3> </legend><br>
+<form>
+Course Number * : <input = "text" name="courseID" id="del_courseID"><br>
+Class Name    * : <input type = "text" name="course_name" id="del_course_name"><br>
+Class Semester : <input type = "text" name="course_semester" id="del_course_semester"><br>
+Class Professor: <input type = "text" name="course_professor" id="del_course_professor"><br><br>
+<input type="button" value="submit" onclick="delrecord()">
+</form>
+</fieldset>
+-->
+<input type = "button" value = "Generate Table" onclick="generate();"></input>
+<script>
+    
+    function generate()
+    {   
+        var table = document.getElementById("table_list");
+        var table_value = table.options[table.selectedIndex].value;
+        xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if(this.readyState == 4 && this.status == 200)
+            {
+                document.getElementById("table").innerHTML = this.responseText;
+                
+            }
+            
+        };
+        xhttp.open("GET", "generatetable.php?table=" + table_value, true);
+        xhttp.send();
+    }
+        
+    function addrecord()
+    {   
+        var courseID = document.getElementById('add_courseID').value;
+        var coursename = document.getElementById('add_course_name').value;
+        var coursesem = document.getElementById('add_course_semester').value;
+        var courseprof = document.getElementById('add_course_professor').value;
+        
+        xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if(this.readyState == 4 && this.status == 200)
+            {
+                document.getElementById("table").innerHTML = this.responseText;
+                
+            }
+            
+        };
+        xhttp.open("GET",   "admin.php?addcourseID=" + courseID  + 
+                            "&addcourse_name=" + coursename + 
+                            "&addcourse_semester=" + coursesem + 
+                            "&addcourse_professor=" + courseprof, true);
+        xhttp.send();
+    }
+    function delrecord()
+    {   
+        var courseID = document.getElementById('del_courseID').value;
+        var coursename = document.getElementById('del_course_name').value;
+        var coursesem = document.getElementById('del_course_semester').value;
+        var courseprof = document.getElementById('del_course_professor').value;
+        
+        xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if(this.readyState == 4 && this.status == 200)
+            {
+                document.getElementById("table").innerHTML = this.responseText;
+                
+            }
+            
+        };
+        xhttp.open("GET",   "delcourse.php?delcourseID=" + courseID  + 
+                            "&delcourse_name=" + coursename + 
+                            "&delcourse_semester=" + coursesem + 
+                            "&delcourse_professor=" + courseprof, true);
+        xhttp.send();
+    }
+</script>
+</body>
+</html>
